@@ -1,58 +1,36 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 
 function Locations() {
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const getLocations = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get('https://realauto.limsa.uz/api/locations');
-      setLocations(res.data.data);
-    } catch (err) {
-      setError("Ma'lumotlarni olishda xatolik yuz berdi!");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const [locations, setLocations] = useState([])
+ 
+  const getCategory = () => {
+    axios({
+      url: 'https://realauto.limsa.uz/api/locations',
+      method: 'GET'
+    }).then(res => {
+      setLocations(res.data.data)
+    })
+  }
   useEffect(() => {
-    getLocations();
-  }, []);
-
+    getCategory()
+  }, [])
   return (
-    <div className='absolute top-[50px] left-[350px] w-[calc(100%-350px)] p-8'>
-      <h2 className='text-3xl font-semibold mb-8'>Joylashuvlar</h2>
+    <div className='grid grid-cols-2 pt-5 gap-5'>
+      {
+        locations.map(category => (
+          <div className='grid grid-cols-1 gap-5 p-5 bg-[#939396] rounded-[20px]' key={category.id}>
+            <div className='flex justify-between'>
+              <h1 className='text-white text-[24px]'>Name:</h1>
+              <p className='text-white text-[24px]'>{category.name}</p>
+            </div>
+            <img className='w-[450px] h-[300px]' src={`https://realauto.limsa.uz/api/uploads/images/${category.image_src}`} alt={category.name_en} />
 
-      {/* Loading holati */}
-      {loading && (
-        <div className="text-gray-600 text-lg">Ma'lumotlar yuklanmoqda...</div>
-      )}
-
-      {/* Xatolik ko'rsatish */}
-      {error && (
-        <div className="text-red-500 text-lg">{error}</div>
-      )}
-
-      {/* Ma'lumotlar muvaffaqiyatli yuklansa */}
-      {!loading && !error && (
-        <div className="grid grid-cols-3 gap-6 justify-end">
-          {locations.length > 0 ? (
-            locations.map((location) => (
-              <div key={location.id} className="bg-white rounded-lg shadow-lg p-4">
-                <h3 className="text-xl font-semibold text-gray-800">{location.name}</h3>
-              </div>
-            ))
-          ) : (
-            <div className="text-gray-600 text-lg">Hech qanday joylashuv topilmadi.</div>
-          )}
-        </div>
-      )}
+          </div>
+        ))
+      }
     </div>
-  );
+  )
 }
 
-export default Locations;
+export default Locations
